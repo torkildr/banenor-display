@@ -74,7 +74,7 @@ class Banenor(object):
         self.formatted_departures = {x: [] for x in tracks.keys()}
         for track, departures in tracks.items():
             trains = [
-                f"{x['to']} {format_expected(x)}"
+                f"{x['line']} {format_expected(x)}"
                 for x in departures[:2]
             ]
             self.formatted_departures[track] = ', '.join(trains)
@@ -85,8 +85,19 @@ async def display_departures(config):
         timezone(config['timezone'])
     )
     track = config['track']
+    displayUrl = config['displayUrl']
 
     previous = None
+
+    async def show(text):
+        async with aiohttp.ClientSession(raise_for_status=True) as s:
+            await s.post(f"{displayUrl}/text", json={
+                'text': text,
+                'time': True,
+            })
+            await s.post(f"{displayUrl}/scroll", json={
+                'arg': 'none',
+            })
 
     while True:
         async for departures in banenor.watch_departures():
@@ -95,6 +106,7 @@ async def display_departures(config):
                 if departure != previous:
                     print(f"{datetime.now().isoformat()}: {departure}")
                     previous = departure
+                    asyncio.create_task(show(departure))
 
 if __name__ == "__main__":
     with open('config.json') as f:
@@ -102,3 +114,4 @@ if __name__ == "__main__":
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(display_departures(config))
+
