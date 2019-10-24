@@ -6,9 +6,10 @@ from datetime import datetime
 from queue import Queue
 
 class Display():
-    def __init__(self, time=2.0, displayUrl=None):
+    def __init__(self, loop, time=2.0, displayUrl=None):
         self.displayUrl = displayUrl
         self.time = time
+        self.event_loop = loop
         self._display_loop = None
 
         if self.displayUrl:
@@ -28,7 +29,11 @@ class Display():
 
             text = lines[current_line]
 
-            await self._show(text)
+            try:
+                await self._show(text)
+            except Exception as e:
+                print(f"Unable to display: {e}")
+
             await asyncio.sleep(self.time)
 
             current_line += 1
@@ -37,7 +42,13 @@ class Display():
         if self._display_loop:
             self._display_loop.cancel()
 
-        self._display_loop = asyncio.create_task(self._display_lines(lines))
+        self._display_loop = self.event_loop.create_task(self._display_lines(lines))
+
+        def done(f):
+            if f.exception():
+                f.print_stack()
+
+        self._display_loop.add_done_callback(done)
 
     async def _console(self, text):
         print(f"{datetime.now().isoformat()}: {text}")

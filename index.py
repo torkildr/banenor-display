@@ -8,12 +8,12 @@ from pytz import timezone
 from banenor import Banenor
 from display import Display
 
-async def display_departures(config):
+async def display_departures(loop, config):
     banenor = Banenor(
         config['station'],
         timezone(config['timezone'])
     )
-    display = Display(displayUrl=config['displayUrl'])
+    display = Display(loop, displayUrl=config['displayUrl'])
 
     track = config['track']
     previous = None
@@ -34,6 +34,6 @@ if __name__ == "__main__":
     loop = asyncio.get_event_loop()
 
     try:
-        loop.run_until_complete(display_departures(config))
+        loop.run_until_complete(display_departures(loop, config))
     except KeyboardInterrupt:
         pass
