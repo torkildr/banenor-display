@@ -9,10 +9,7 @@ from banenor import Banenor
 from display import Display
 
 async def display_departures(loop, config):
-    banenor = Banenor(
-        config['station'],
-        timezone(config['timezone'])
-    )
+    banenor = Banenor(config['station'], timezone(config['timezone']))
     display = Display(loop, displayUrl=config['displayUrl'])
 
     track = config['track']
