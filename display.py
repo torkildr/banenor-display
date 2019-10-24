@@ -13,11 +13,14 @@ class Display():
 
         if self.displayUrl:
             self._show = self._display
+            self._setup = self._display_setup
         else:
             self._show = self._console
+            self._setup = lambda: None
 
-    async def _display_line(self, lines):
+    async def _display_lines(self, lines):
         current_line = 0
+        await self._display_setup()
 
         while True:
             if current_line >= len(lines):
@@ -34,17 +37,20 @@ class Display():
         if self._display_loop:
             self._display_loop.cancel()
 
-        self._display_loop = asyncio.create_task(self._display_line(lines))
+        self._display_loop = asyncio.create_task(self._display_lines(lines))
 
     async def _console(self, text):
         print(f"{datetime.now().isoformat()}: {text}")
+
+    async def _display_setup(self):
+        async with aiohttp.ClientSession(raise_for_status=True) as s:
+            await s.post(f"{self.displayUrl}/scroll", json={
+                'arg': 'auto',
+            })
 
     async def _display(self, text):
         async with aiohttp.ClientSession(raise_for_status=True) as s:
             await s.post(f"{self.displayUrl}/text", json={
                 'text': text,
                 'time': True,
-            })
-            await s.post(f"{self.displayUrl}/scroll", json={
-                'arg': 'auto',
             })
