@@ -55,6 +55,7 @@ class Display():
             try:
                 await self._display.show(text)
             except Exception as e:
+                print(f"{datetime.now().isoformat()}: {type(e)}")
                 print(f"Unable to display: {e}")
 
             await asyncio.sleep(self.time)
