@@ -32,5 +32,8 @@ if __name__ == "__main__":
         config = json.load(f)
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(display_departures(config))
 
+    try:
+        loop.run_until_complete(display_departures(config))
+    except KeyboardInterrupt:
+        pass

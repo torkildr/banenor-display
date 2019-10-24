@@ -9,32 +9,32 @@ class Display():
     def __init__(self, time=2.0, displayUrl=None):
         self.displayUrl = displayUrl
         self.time = time
-        self.loop = asyncio.new_event_loop()
+        self._display_loop = None
 
         if self.displayUrl:
             self._show = self._display
         else:
             self._show = self._console
 
-    def _set_timer(self, time):
-        timer = threading.Timer(time, self._display_line)
-        timer.start()
+    async def _display_line(self, lines):
+        current_line = 0
 
-    def _display_line(self):
-        if self.current_line >= len(self.lines):
-            self.current_line = 0
+        while True:
+            if current_line >= len(lines):
+                current_line = 0
 
-        text = self.lines[self.current_line]
+            text = lines[current_line]
 
-        self.loop.run_until_complete(self._show(text))
+            await self._show(text)
+            await asyncio.sleep(self.time)
 
-        self.current_line += 1
-        self._set_timer(self.time)
+            current_line += 1
 
     def show(self, lines):
-        self.lines = lines
-        self.current_line = 0
-        self._set_timer(0)
+        if self._display_loop:
+            self._display_loop.cancel()
+
+        self._display_loop = asyncio.create_task(self._display_line(lines))
 
     async def _console(self, text):
         print(f"{datetime.now().isoformat()}: {text}")
@@ -46,5 +46,5 @@ class Display():
                 'time': True,
             })
             await s.post(f"{self.displayUrl}/scroll", json={
-                'arg': 'none',
+                'arg': 'auto',
             })
