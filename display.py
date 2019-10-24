@@ -67,8 +67,8 @@ class Display():
 
         self._display_loop = self.event_loop.create_task(self._display_lines(lines))
 
-        def done(f):
-            if f.exception():
+        def done(f: asyncio.Future):
+            if not f.cancelled() and f.exception():
                 f.print_stack()
 
         self._display_loop.add_done_callback(done)
