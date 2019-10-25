@@ -12,6 +12,7 @@ class MatrixDisplay():
         self.session = aiohttp.ClientSession(raise_for_status=True)
 
     async def setup(self):
+        await self.session.close()
         async with self.session.post(f"{self.displayUrl}/scroll", json={
             'arg': 'auto',
         }):
