@@ -12,16 +12,18 @@ class MatrixDisplay():
 
     async def setup(self):
         async with aiohttp.ClientSession(raise_for_status=True) as s:
-            await s.post(f"{self.displayUrl}/scroll", json={
+            async with s.post(f"{self.displayUrl}/scroll", json={
                 'arg': 'auto',
-            })
+            }):
+                pass
 
     async def show(self, text):
         async with aiohttp.ClientSession(raise_for_status=True) as s:
-            await s.post(f"{self.displayUrl}/text", json={
+            async with s.post(f"{self.displayUrl}/text", json={
                 'text': text,
                 'time': True,
-            })
+            }):
+                pass
 
 class MockDisplay():
     async def setup(self):
