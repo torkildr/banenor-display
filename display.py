@@ -9,21 +9,20 @@ from queue import Queue
 class MatrixDisplay():
     def __init__(self, displayUrl):
         self.displayUrl = displayUrl
+        self.session = aiohttp.ClientSession(raise_for_status=True)
 
     async def setup(self):
-        async with aiohttp.ClientSession(raise_for_status=True) as s:
-            async with s.post(f"{self.displayUrl}/scroll", json={
-                'arg': 'auto',
-            }):
-                pass
+        async with self.session.post(f"{self.displayUrl}/scroll", json={
+            'arg': 'auto',
+        }):
+            pass
 
     async def show(self, text):
-        async with aiohttp.ClientSession(raise_for_status=True) as s:
-            async with s.post(f"{self.displayUrl}/text", json={
-                'text': text,
-                'time': True,
-            }):
-                pass
+        async with self.session.post(f"{self.displayUrl}/text", json={
+            'text': text,
+            'time': True,
+        }):
+            pass
 
 class MockDisplay():
     async def setup(self):
