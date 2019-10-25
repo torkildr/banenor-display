@@ -12,7 +12,6 @@ class MatrixDisplay():
         self.session = aiohttp.ClientSession(raise_for_status=True)
 
     async def setup(self):
-        await self.session.close()
         async with self.session.post(f"{self.displayUrl}/scroll", json={
             'arg': 'auto',
         }):
@@ -38,6 +37,7 @@ class Display():
         self.time = time
         self.event_loop = loop
         self._display_loop = None
+        self._setup_done = False
 
         if displayUrl:
             self._display = MatrixDisplay(displayUrl)
@@ -45,9 +45,11 @@ class Display():
             self._display = MockDisplay()
 
     async def _display_lines(self, lines):
-        current_line = 0
-        await self._display.setup()
+        if not self._setup_done:
+            await self._display.setup()
+            self._setup_done = True
 
+        current_line = 0
         while True:
             if current_line >= len(lines):
                 current_line = 0
