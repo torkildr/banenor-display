@@ -9,7 +9,8 @@ from queue import Queue
 class MatrixDisplay():
     def __init__(self, displayUrl):
         self.displayUrl = displayUrl
-        self.session = aiohttp.ClientSession(raise_for_status=True)
+        timeout = aiohttp.ClientTimeout(total=10)
+        self.session = aiohttp.ClientSession(timeout=timeout, raise_for_status=True)
 
     async def setup(self):
         async with self.session.post(f"{self.displayUrl}/scroll", json={
