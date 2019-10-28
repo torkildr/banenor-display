@@ -14,7 +14,7 @@ class MatrixDisplay():
 
     async def setup(self):
         async with self.session.post(f"{self.displayUrl}/scroll", json={
-            'arg': 'auto',
+            'arg': 'none',
         }):
             pass
 

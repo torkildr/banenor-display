@@ -16,13 +16,13 @@ async def display_departures(loop, config):
     previous = None
 
     while True:
-        async for departures in banenor.watch_departures():
-            if track in departures:
-                departure = departures[track]
-                if departure != previous:
-                    print(f"{datetime.now().isoformat()}: {departure}")
-                    previous = departure
-                    display.show(departure)
+        async for all_departures in banenor.watch_departures():
+            if track in all_departures:
+                departures = all_departures[track]
+                if departures != previous:
+                    print(f"{datetime.now().isoformat()}: {departures}")
+                    previous = departures
+                    display.show(departures)
 
 if __name__ == "__main__":
     with open('config.json') as f:
